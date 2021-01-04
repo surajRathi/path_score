@@ -1,0 +1,131 @@
+from math import inf
+from time import sleep
+from typing import Iterable, List, Tuple, Callable
+
+import numpy as np
+
+from path_score.generate_markers import get_marker
+from path_score.generate_velocity_profile import generate_velocity_profile
+from path_score.helpers import Position, Env
+
+
+# noinspection PyUnusedLocal
+def obstacle_at(env: Env, path: List[Position], i: int) -> bool:
+    # TODO: Implement
+    return False
+
+
+def slope(path: List[Position], i: int) -> float:
+    return np.arctan2(path[i + 1][1] - path[i][1], path[i + 1][0] - path[i][0])
+
+
+def score_paths(env: Env, paths: Iterable[List[Position]]) -> Tuple[Tuple[List[Position], List[float]], float]:
+    best_trajectory = None
+    best_cost = +inf
+
+    for index, path in enumerate(paths):
+        cost = 0.0
+        costs = [0] * len(path)  # store individual costs for visualization
+
+        vel_profile = generate_velocity_profile(env, path)
+
+        # Assume the path is a set of line segments
+        global_path_index = 0  # The closes segment to the current point on the candidate path
+        distance_func = get_distance_func(env.path, global_path_index)  # To get distance of point from nearest segment
+
+        for j in range(len(path)):
+            pt = path[j]
+
+            if obstacle_at(env, path, j):
+                cost += +inf
+                break
+
+            # Shift to the 'closest' segment of the path
+            # `get_normal(env.path, global_path_index)(*pt) > 0`
+            # checks if `pt` is in the forward direction relative to the normal
+            while global_path_index != len(env.path) - 1 and get_normal(env.path, global_path_index)(*pt) > 0:
+                global_path_index += 1
+                distance_func = get_distance_func(env.path, global_path_index)
+
+            # Cross Track Error
+            costs[j] += env.weights.cte * np.abs(distance_func(*pt))
+
+            # Velocity Term
+            costs[j] -= env.weights.vel * vel_profile[j]
+
+            # Slope term:
+            if j != len(path) - 1:
+                costs[j] += env.weights.slope * np.abs(slope(path, j) - slope(env.path, global_path_index))
+
+            cost += costs[j]
+
+        # Visualize
+        env.m_pub.publish(
+            get_marker(env.nh.get_clock(), index, path, weights=costs, weight_max=3, scale=0.1))
+        sleep(0.01)
+
+        if cost < best_cost:
+            best_trajectory = path, vel_profile
+            best_cost = cost
+
+    return best_trajectory, best_cost
+
+
+def get_normal(path: List[Position], i: int) -> Callable[[float, float], float]:
+    """
+    Generates Normal to path at vertex i
+    :param path: Path
+    :param i: index of vertex
+    :return: function which evaluates Ax + By + C, positive values indicates point is towards vertex i + 1
+    """
+    vertex = path[i]
+    # Slope of normal to the required curve
+    theta = np.arctan2(path[i + 1][1] - path[i - 1][1], path[i + 1][0] - path[i - 1][0])
+
+    def ret(x: float, y: float) -> float:
+        return (x - vertex[0]) * np.cos(theta) + (y - vertex[1]) * np.sin(theta)
+
+    return ret
+
+
+def get_distance_func(path: List[Position], i: int) -> Callable[[float, float], float]:
+    """
+    Generates line between vertex i and vertex i + 1
+    :param path: Path
+    :param i: index of vertex
+    :return: function which evaluates Ax + By + C, here sign has no meaning
+    """
+
+    if i >= len(path) - 1:
+        # TODO: Choose a better constant
+        return lambda x, y: 4
+
+    vertex = path[i]
+    # Slope of segment
+    theta = slope(path, i)
+
+    def ret(x: float, y: float) -> float:
+        return (x - vertex[0]) * np.sin(theta) - (y - vertex[1]) * np.cos(theta)
+
+    return ret
+
+
+"""
+MapGridCostFunction This cost function class rates a trajectory based on how closely the trajectory follows a 
+global path or approaches a goal point. This attempts to optimize calculation speed by using the same precomputed map 
+of distances to a path or goal point for all trajectories. 
+
+In the dwa_local_planner, this cost function is instantiated multiple times, for different purposes. To keep the 
+trajectory close to the path, to make the robot advance towards a local goal, and also to make the robot front (
+"nose") point towards a local goal. This cost function is a heuristics that can give bad results or even fail with 
+unsuitable parameters. 
+"""
+
+"""
+~<name>/pdist_scale (double, default: 0.6) The weighting for how much the controller should stay close to the path 
+it was given, maximal possible value is 5.0 
+~<name>/gdist_scale (double, default: 0.8) The weighting for how much the controller should attempt to reach its local
+goal, also controls speed, maximal possible value is 5.0 
+~<name>/occdist_scale (double, default: 0.01) The weighting for how much the controller should attempt to avoid 
+obstacles
+"""
