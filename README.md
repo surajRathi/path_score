@@ -1,13 +1,13 @@
-### score_paths.py
+### [score_paths.py](https://github.com/surajRathi/path_score/blob/master/path_score/score_paths.py)
 - actual "logic"
 
-### main.py
+### [main.py](https://github.com/surajRathi/path_score/blob/master/path_score/main.py)
 - Mostly ros filler
 - dummy global path generator
 - truncates global path 
 
 ### generate_markers.py
-- Helper to create the visualization_msgs::Marker for rviz
+- Helper function to create the visualization_msgs::Marker for rviz
 
 ### helpers.py
 - Some data types defined
