@@ -258,8 +258,8 @@ class VelocityProfile:
                     for changes in range(1, b):
                         u = np.sqrt(np.square(np.sqrt(
                             R * (mu * N / m + 9.81 * np.sin(theta[xx])))) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1])) / m)
-                        for a in range(1, changes + 1):
-                            deltav[xx - changes + a - 1] = max(deltav[xx - changes + a - 1] - (v[xx - 1] - u) / changes,
+                        for i in range(1, changes + 1):
+                            deltav[xx - changes + i - 1] = max(deltav[xx - changes + i - 1] - (v[xx - 1] - u) / changes,
                                                                (np.sqrt(np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1])) / m) - v[xx - 1]))
                         # find delta again
                         if delta < (np.sqrt(np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1])) / m) - v[xx - 1]):
