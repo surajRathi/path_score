@@ -23,6 +23,7 @@ def main(args: Optional[Iterable[str]] = None):
     rclpy.init(args=args)
     env: Env = Env(Node('path_score'))
     info: Callable[[str], None] = env.nh.get_logger().info
+    env.info = info
     info("Starting up...")
 
     # For Rate objects to work
@@ -58,7 +59,7 @@ def main(args: Optional[Iterable[str]] = None):
 
         best_trajectory, cost = score_paths(env, paths)
 
-        info(f"Lowest {cost=:.2f}")
+        info(f"Lowest {cost=:.2f}: {best_trajectory[1][:4]}")
 
         r.sleep()
 

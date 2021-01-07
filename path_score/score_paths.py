@@ -1,6 +1,6 @@
 from math import inf
 from time import sleep
-from typing import Iterable, List, Tuple, Callable
+from typing import Iterable, Tuple, Callable, Optional
 
 import numpy as np
 
@@ -19,7 +19,7 @@ def slope(path: path_t, i: int) -> float:
     return np.arctan2(path[i + 1][1] - path[i][1], path[i + 1][0] - path[i][0])
 
 
-def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Tuple[path_t, List[float]], float]:
+def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Optional[Tuple[path_t, np.ndarray]], float]:
     best_trajectory = None
     best_cost = +inf
 
@@ -51,7 +51,8 @@ def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Tuple[path_t, List[f
             costs[j] += env.weights.cte * np.abs(distance_func(*pt))
 
             # Velocity Term
-            costs[j] -= env.weights.vel * vel_profile[j]
+            if j != len(path) - 1:
+                costs[j] -= env.weights.vel * vel_profile[j]
 
             # Slope term:
             if j != len(path) - 1:

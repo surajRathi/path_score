@@ -32,6 +32,7 @@ class Env:
 
     weights: Weights = Weights()
     vel_params: VelParams = VelParams()
+    info = None
 
     state: state_t = np.zeros(4)  # [x, y, theta, v]
     path: path_t = None  # [ [x, y], ... ]
