@@ -63,8 +63,8 @@ def main(args: Optional[Iterable[str]] = None):
         r.sleep()
 
         # Dummy state update
-        #            [ x , y , theta]
-        env.state += [0.5, 0.1, 0.05]
+        #            [ x , y , theta, vel]
+        env.state += [0.5, 0.1, 0.05, 0.1]
 
     env.nh.destroy_node()
     rclpy.shutdown()

@@ -15,7 +15,14 @@ class Weights:
 
 
 state_t = TypeVar('state_t')  # np.ndarray[[3], float]
-path_t = TypeVar('path_t')    # np.ndarray[[-1, 2], float]
+path_t = TypeVar('path_t')  # np.ndarray[[-1, 2], float]
+
+
+@dataclass
+class VelParams:
+    m: float = 730.0
+    mu: float = 0.6
+    rolling_friction: float = 65.0
 
 
 @dataclass
@@ -24,6 +31,7 @@ class Env:
     m_pub: Publisher = None
 
     weights: Weights = Weights()
+    vel_params: VelParams = VelParams()
 
-    state: state_t = np.zeros(3)  # [x, y, theta]
+    state: state_t = np.zeros(4)  # [x, y, theta, v]
     path: path_t = None  # [ [x, y], ... ]
