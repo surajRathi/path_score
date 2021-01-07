@@ -197,7 +197,7 @@ class VelocityProfile:
         waypoints = np.zeros((len(path) - 1, 3))
 
         arr = np.zeros(4)
-        x = y = z = [0.0] * len(path)
+        x = y = [0.0] * len(path)
         t, a, b, c = 0, 0.0, 0.0, 0.0
 
         x, y = path[:, 0], path[:, 1]
@@ -219,16 +219,13 @@ class VelocityProfile:
             d = 4.0
             u = v[xx - 1]
             a = np.sqrt(np.square(x[xx] - x[xx - 1]) +
-                        np.square(y[xx] - y[xx - 1]) +
-                        np.square(z[xx] - z[xx - 1]))
+                        np.square(y[xx] - y[xx - 1]))
 
             b = np.sqrt(np.square(x[xx] - x[xx + 1]) +
-                        np.square(y[xx] - y[xx + 1]) +
-                        np.square(z[xx] - z[xx + 1]))
+                        np.square(y[xx] - y[xx + 1]))
 
             c = np.sqrt(np.square(x[xx + 1] - x[xx - 1]) +
-                        np.square(y[xx + 1] - y[xx - 1]) +
-                        np.square(z[xx + 1] - z[xx - 1]))
+                        np.square(y[xx + 1] - y[xx - 1]))
 
             if (a + b + c) * (a + b - c) * (a + c - b) * (b + c - a) == 0:
                 R = 1000000000000000000.0
