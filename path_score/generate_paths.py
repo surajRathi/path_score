@@ -2,10 +2,10 @@ from typing import Generator, List
 
 import numpy as np
 
-from path_score.helpers import Position
+from path_score.helpers import path_t
 
 
-def generate_paths(env, n=10, n_pts=20) -> Generator[List[Position], None, None]:
+def generate_paths(env, n=10, n_pts=20) -> Generator[path_t, None, None]:
     """
     Generates straight lines around the direction the vehicle faces
     TODO: Replace with an actual path generator
@@ -19,6 +19,6 @@ def generate_paths(env, n=10, n_pts=20) -> Generator[List[Position], None, None]
     veh = env.state
     for i in range(n):
         a = np.arctan(-0.8 + (0.8 - (-0.8)) * (1.0 * i / n))
-        x = r * np.cos(a + veh.theta)
-        y = r * np.sin(a + veh.theta)
-        yield [Position(veh.x + xp, veh.y + yp) for xp, yp in zip(x, y)]
+        x = veh[0] + r * np.cos(a + veh[2])
+        y = veh[1] + r * np.sin(a + veh[2])
+        yield np.stack([x, y], axis=1)

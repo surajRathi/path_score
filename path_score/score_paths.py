@@ -6,26 +6,26 @@ import numpy as np
 
 from path_score.generate_markers import get_marker
 from path_score.generate_velocity_profile import generate_velocity_profile
-from path_score.helpers import Position, Env
+from path_score.helpers import Env, path_t
 
 
 # noinspection PyUnusedLocal
-def obstacle_at(env: Env, path: List[Position], i: int) -> bool:
+def obstacle_at(env: Env, path: path_t, i: int) -> bool:
     # TODO: Implement
     return False
 
 
-def slope(path: List[Position], i: int) -> float:
+def slope(path: path_t, i: int) -> float:
     return np.arctan2(path[i + 1][1] - path[i][1], path[i + 1][0] - path[i][0])
 
 
-def score_paths(env: Env, paths: Iterable[List[Position]]) -> Tuple[Tuple[List[Position], List[float]], float]:
+def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Tuple[path_t, List[float]], float]:
     best_trajectory = None
     best_cost = +inf
 
     for index, path in enumerate(paths):
         cost = 0.0
-        costs = [0] * len(path)  # store individual costs for visualization
+        costs = np.zeros(len(path))  # store individual costs for visualization
 
         vel_profile = generate_velocity_profile(env, path)
 
@@ -71,7 +71,7 @@ def score_paths(env: Env, paths: Iterable[List[Position]]) -> Tuple[Tuple[List[P
     return best_trajectory, best_cost
 
 
-def get_normal(path: List[Position], i: int) -> Callable[[float, float], float]:
+def get_normal(path: path_t, i: int) -> Callable[[float, float], float]:
     """
     Generates Normal to path at vertex i
     :param path: Path
@@ -88,7 +88,7 @@ def get_normal(path: List[Position], i: int) -> Callable[[float, float], float]:
     return ret
 
 
-def get_distance_func(path: List[Position], i: int) -> Callable[[float, float], float]:
+def get_distance_func(path: path_t, i: int) -> Callable[[float, float], float]:
     """
     Generates line between vertex i and vertex i + 1
     :param path: Path

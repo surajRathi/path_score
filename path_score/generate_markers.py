@@ -1,19 +1,18 @@
-from typing import Collection, Union, Sequence, Optional
+from typing import Union, Optional, List, Iterable
 
+import numpy as np
 from geometry_msgs.msg import Vector3, Point
 from rclpy.clock import Clock
 from std_msgs.msg import ColorRGBA, Header
 from visualization_msgs.msg import Marker
 
-from path_score.helpers import Position
-
 
 def get_marker(clock: Clock,
 
                path_id: int,
-               path: Collection[Union[Sequence[float], Position]],
+               path: Union[np.ndarray, Iterable[List[float]]],  # n x 2
 
-               weights: Optional[Collection[float]] = None,
+               weights: Optional[Union[List[float], np.ndarray]] = None,
                weight_max: Optional[float] = 1.0,
 
                frame_id: Optional[str] = "/map",

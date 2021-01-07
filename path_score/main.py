@@ -15,7 +15,7 @@ from visualization_msgs.msg import Marker
 
 from path_score.generate_markers import get_marker
 from path_score.generate_paths import generate_paths
-from path_score.helpers import Position, Env
+from path_score.helpers import Env, state_t
 from path_score.score_paths import score_paths
 
 
@@ -33,8 +33,10 @@ def main(args: Optional[Iterable[str]] = None):
     env.m_pub = env.nh.create_publisher(Marker, 'paths', 50)
 
     # Dummy Global Path
-    for t in np.arange(0.1, 10, 0.5):
-        env.path.append(Position(2 * t, t ** 2 / 10))
+    from itertools import chain
+    env.path = np.fromiter(chain.from_iterable(
+        (2 * t, t ** 2 / 10) for t in np.arange(0.1, 10, 0.5)
+    ), dtype=np.float).reshape((-1, 2))
 
     r = env.nh.create_rate(1)
     while rclpy.ok() and len(env.path) > 10:
@@ -45,7 +47,7 @@ def main(args: Optional[Iterable[str]] = None):
 
         # Publish Global Path and Current Position
         env.m_pub.publish(
-            get_marker(env.nh.get_clock(), 50, [[env.state.x, env.state.y]], scale=0.5,
+            get_marker(env.nh.get_clock(), 50, [env.state[:2]], scale=0.5,
                        color=ColorRGBA(r=1.0, b=1.0, a=1.0)))
         sleep(0.01)
 
@@ -61,25 +63,24 @@ def main(args: Optional[Iterable[str]] = None):
         r.sleep()
 
         # Dummy state update
-        env.state.x += 0.5
-        env.state.y += 0.1
-        env.state.theta += 0.05
+        #            [ x , y , theta]
+        env.state += [0.5, 0.1, 0.05]
 
     env.nh.destroy_node()
     rclpy.shutdown()
     thread.join()
 
 
-def update_global_path(env):
+def update_global_path(env: Env):
     def line_behind_vehicle(x: float, y: float) -> float:
-        p = env.state
-        return (x - p.x) * np.cos(p.theta) + (y - p.y) * np.sin(p.theta)
+        p: state_t = env.state
+        return (x - p[0]) * np.cos(p[2]) + (y - p[1]) * np.sin(p[2])
 
     def is_behind(x: float, y: float) -> bool:
         return line_behind_vehicle(x, y) < 0
 
     while is_behind(*env.path[0]):
-        del env.path[0]
+        env.path = env.path[1:, :]
 
 
 if __name__ == '__main__':

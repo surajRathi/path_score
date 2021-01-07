@@ -1,24 +1,10 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import List
+from typing import TypeVar
 
+import numpy as np
 from rclpy.node import Node
 from rclpy.publisher import Publisher
-
-
-# Helper Data types
-@dataclass
-class Position:
-    x: float
-    y: float
-
-    def __getitem__(self, item):
-        return (self.x, self.y)[item]
-
-
-@dataclass
-class State(Position):
-    theta: float
 
 
 @dataclass
@@ -28,6 +14,10 @@ class Weights:
     slope: float = 1
 
 
+state_t = TypeVar('state_t')  # np.ndarray[[3], float]
+path_t = TypeVar('path_t')    # np.ndarray[[-1, 2], float]
+
+
 @dataclass
 class Env:
     nh: Node
@@ -35,5 +25,5 @@ class Env:
 
     weights: Weights = Weights()
 
-    state: State = State(0, 0, 0)
-    path: List[Position] = dataclasses.field(default_factory=list)  # []
+    state: state_t = np.zeros(3)  # [x, y, theta]
+    path: path_t = None  # [ [x, y], ... ]
