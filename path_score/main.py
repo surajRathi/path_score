@@ -69,7 +69,10 @@ def main(args: Optional[Iterable[str]] = None):
 
         best_trajectory, cost = score_paths(env, paths, max_path_len=20)
 
-        info(f"Lowest {cost=:.2f}: {best_trajectory[1][:4]}")
+        if best_trajectory is not None:
+            info(f"Lowest {cost=:.2f}: {best_trajectory[1][:4]}")
+        else:
+            info("No trajectory found.")
 
         r.sleep()
 
