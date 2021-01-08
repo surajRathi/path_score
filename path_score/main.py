@@ -38,6 +38,13 @@ def main(args: Optional[Iterable[str]] = None):
         (2 * t, t ** 2 / 10) for t in np.arange(0.1, 10, 0.5)
     ), dtype=np.float).reshape((-1, 2))
 
+    # Dummy obstacles
+    env.obstacles = np.fromiter(chain.from_iterable(
+        (3, y) for y in np.linspace(-1, -0.5, 5)
+    ), dtype=np.float).reshape((-1, 2))
+
+    visualize(env.m_pub, env.nh.get_clock(), 52, env.obstacles, color=ColorRGBA(g=1.0, a=1.0))
+
     r = env.nh.create_rate(1)
     while rclpy.ok() and len(env.path) > 10:
         # Remove passed points
