@@ -52,7 +52,7 @@ def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Optional[Tuple[path_
 
             # Velocity Term
             if j != len(path) - 1:
-                costs[j] -= env.weights.vel * vel_profile[j]
+                costs[j] += env.weights.vel * 1.0 / (vel_profile[j] + 1.0)
 
             # Slope term:
             if j != len(path) - 1:
