@@ -43,6 +43,9 @@ def main(args: Optional[Iterable[str]] = None):
         (3, y) for y in np.linspace(-1, -0.5, 5)
     ), dtype=np.float).reshape((-1, 2))
 
+    # Dummy other vehicle
+    env.other_vehicle_states = [np.array([5, 3, - np.pi / 3, 0.2])]
+
     visualize(env.m_pub, env.nh.get_clock(), 52, env.obstacles, color=ColorRGBA(g=1.0, a=1.0))
 
     r = env.nh.create_rate(1)
@@ -58,6 +61,10 @@ def main(args: Optional[Iterable[str]] = None):
 
         visualize(env.m_pub, env.nh.get_clock(), 51, env.path)
 
+        for i, state in enumerate(env.other_vehicle_states):
+            visualize(env.m_pub, env.nh.get_clock(), 52 + 1 + i, [state[:2]], scale=0.5,
+                      color=ColorRGBA(r=1.0, g=1.0, a=1.0))
+
         paths = generate_paths(env, n=10, n_pts=20)
 
         best_trajectory, cost = score_paths(env, paths, max_path_len=20)
@@ -69,6 +76,8 @@ def main(args: Optional[Iterable[str]] = None):
         # Dummy state update
         #            [ x , y , theta, vel]
         env.state += [0.5, 0.1, 0.05, 0.1]
+        for state in env.other_vehicle_states:
+            state[:2] += state[3] * np.array([np.cos(state[2]), np.sin(state[2])])
 
     env.nh.destroy_node()
     rclpy.shutdown()
