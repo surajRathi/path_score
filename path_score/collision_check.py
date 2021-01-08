@@ -3,11 +3,18 @@ import scipy.spatial
 
 import math
 
+from std_msgs.msg import ColorRGBA
+
+from path_score.generate_markers import visualize
 from path_score.helpers import Env, path_t, state_t
 
 
+# TODO: Fix docstrings
+
 class CollisionChecker:
     def __init__(self, env: Env, path_length: int, time_step: float):
+        self.info = env.info
+
         params = env.collision_params
         self._circle_offset = params.circle_offset
         self._circle_radii = params.circle_radii
@@ -26,6 +33,8 @@ class CollisionChecker:
             vehicle_path[0] = time_step * vehicle_state[3] * math.cos(vehicle_state[2]) * time + vehicle_state[0]
             vehicle_path[1] = time_step * vehicle_state[3] * math.sin(vehicle_state[2]) * time + vehicle_state[1]
             vehicle_path[2] = vehicle_state[2]
+            visualize(env.m_pub, env.nh.get_clock(), 75 + i, vehicle_path.T[:, :2],
+                      color=ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0))
 
             self._other_vehicle_paths[i] = vehicle_path
 

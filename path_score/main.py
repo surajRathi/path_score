@@ -44,7 +44,7 @@ def main(args: Optional[Iterable[str]] = None):
     ), dtype=np.float).reshape((-1, 2))
 
     # Dummy other vehicle
-    env.other_vehicle_states = [np.array([5, 3, - np.pi / 3, 0.2])]
+    env.other_vehicle_states = [np.array([3, 5, - np.pi / 3, 0.3])]
 
     visualize(env.m_pub, env.nh.get_clock(), 52, env.obstacles, color=ColorRGBA(g=1.0, a=1.0))
 
