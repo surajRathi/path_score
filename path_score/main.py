@@ -51,9 +51,9 @@ def main(args: Optional[Iterable[str]] = None):
 
         visualize(env.m_pub, env.nh.get_clock(), 51, env.path)
 
-        paths = generate_paths(env)
+        paths = generate_paths(env, n=10, n_pts=20)
 
-        best_trajectory, cost = score_paths(env, paths)
+        best_trajectory, cost = score_paths(env, paths, max_path_len=20)
 
         info(f"Lowest {cost=:.2f}: {best_trajectory[1][:4]}")
 

@@ -3,6 +3,7 @@ from typing import Iterable, Tuple, Callable, Optional
 
 import numpy as np
 
+from path_score.collision_check import CollisionChecker
 from path_score.generate_markers import visualize
 from path_score.generate_velocity_profile import generate_velocity_profile
 from path_score.helpers import Env, path_t
@@ -18,15 +19,21 @@ def slope(path: path_t, i: int) -> float:
     return np.arctan2(path[i + 1][1] - path[i][1], path[i + 1][0] - path[i][0])
 
 
-def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Optional[Tuple[path_t, np.ndarray]], float]:
+def score_paths(env: Env, paths: Iterable[path_t], max_path_len: Optional[int] = 50
+                ) -> Tuple[Optional[Tuple[path_t, np.ndarray]], float]:
     best_trajectory = None
     best_cost = +inf
 
+    collision_checker = CollisionChecker(env, max_path_len, time_step=0.1)
     for index, path in enumerate(paths):
+        path = path[:]
         cost = 0.0
         costs = np.zeros(len(path))  # store individual costs for visualization
 
         vel_profile = generate_velocity_profile(env, path)
+
+        if not collision_checker.check_collisions(path):
+            continue
 
         # Assume the path is a set of line segments
         global_path_index = 0  # The closes segment to the current point on the candidate path
