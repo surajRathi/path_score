@@ -44,5 +44,5 @@ class Env:
     state: state_t = np.zeros(4)  # [x, y, theta, v]
     path: path_t = None  # [ [x, y], ... ]
 
-    obstacles: np.ndarray = np.zeros((2, 0))
+    obstacles: np.ndarray = np.zeros((0, 2))
     other_vehicle_states: List[state_t] = ()
