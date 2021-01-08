@@ -4,7 +4,6 @@ Visualizes the CTE of some simple paths using rviz2
 """
 import sys
 import threading
-from time import sleep
 from typing import Optional, Iterable, Callable
 
 import numpy as np
@@ -13,7 +12,7 @@ from rclpy.node import Node
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker
 
-from path_score.generate_markers import get_marker
+from path_score.generate_markers import visualize
 from path_score.generate_paths import generate_paths
 from path_score.helpers import Env, state_t
 from path_score.score_paths import score_paths
@@ -47,13 +46,10 @@ def main(args: Optional[Iterable[str]] = None):
         update_global_path(env)
 
         # Publish Global Path and Current Position
-        env.m_pub.publish(
-            get_marker(env.nh.get_clock(), 50, [env.state[:2]], scale=0.5,
-                       color=ColorRGBA(r=1.0, b=1.0, a=1.0)))
-        sleep(0.01)
+        visualize(env.m_pub, env.nh.get_clock(), 50, [env.state[:2]], scale=0.5,
+                  color=ColorRGBA(r=1.0, b=1.0, a=1.0))
 
-        env.m_pub.publish(get_marker(env.nh.get_clock(), 51, env.path, scale=0.2))
-        sleep(0.01)
+        visualize(env.m_pub, env.nh.get_clock(), 51, env.path)
 
         paths = generate_paths(env)
 

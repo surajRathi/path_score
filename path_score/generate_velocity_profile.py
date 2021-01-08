@@ -3,7 +3,6 @@ import numpy as np
 from path_score.helpers import Env, path_t
 
 
-# noinspection PyUnusedLocal
 def generate_velocity_profile(env: Env, path: path_t) -> np.ndarray:
     """
 
@@ -21,9 +20,6 @@ def generate_velocity_profile(env: Env, path: path_t) -> np.ndarray:
     theta = np.zeros(len(path) - 1)
     deltav[0] = 0.0
     v[0] = env.state[3]
-
-    possible_velocities = np.zeros(4)
-    a = b = c = 0.0
 
     x, y = path[:, 0], path[:, 1]
 
@@ -73,11 +69,8 @@ def generate_velocity_profile(env: Env, path: path_t) -> np.ndarray:
         # assert (delta == np.max(possible_velocities) - v[xx - 1])
 
         if delta >= (np.sqrt(
-                np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1]) - 1550.0) / m) - v[
-                         xx - 1]):
-            deltav[xx] = (np.sqrt(
-                np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1]) - 1550.0) / m) - v[
-                              xx - 1])
+                np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1]) - 1550.0) / m) - v[xx - 1]):
+            deltav[xx] = (np.sqrt(np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1]) - 1550.0) / m) - v[xx - 1])
         else:
             if delta < (
                     np.sqrt(np.square(v[xx - 1]) - 2 * d * (rolling_friction + 0.445 * np.square(v[xx - 1])) / m) -

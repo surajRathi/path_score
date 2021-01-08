@@ -1,10 +1,9 @@
 from math import inf
-from time import sleep
 from typing import Iterable, Tuple, Callable, Optional
 
 import numpy as np
 
-from path_score.generate_markers import get_marker
+from path_score.generate_markers import visualize
 from path_score.generate_velocity_profile import generate_velocity_profile
 from path_score.helpers import Env, path_t
 
@@ -61,9 +60,7 @@ def score_paths(env: Env, paths: Iterable[path_t]) -> Tuple[Optional[Tuple[path_
             cost += costs[j]
 
         # Visualize
-        env.m_pub.publish(
-            get_marker(env.nh.get_clock(), index, path, weights=costs, weight_max=3, scale=0.1))
-        sleep(0.01)
+        visualize(env.m_pub, env.nh.get_clock(), index, path, weights=costs, weight_max=3)
 
         if cost < best_cost:
             best_trajectory = path, vel_profile
